@@ -1,16 +1,18 @@
 import requests
 import os
-from bs4 import BeautifulSoup
 import shutil
+from bs4 import BeautifulSoup
 
 
 class Download:
-    def __init__(self, url):
+    def __init__(self, url, path=os.getcwd()):
         if url[-1] == '/':
             print("Удалите последнюю косую черту из адресса")
         else:
+            os.chdir(path)
             self.r = requests.get(url)
             self.url = url
+            self.path = path
 
     def __get_links(self):
         soup = BeautifulSoup(self.r.text.replace('\t', '').encode('utf-8'), 'lxml')
@@ -24,10 +26,9 @@ class Download:
                                  self.url + item.find('a').get('href')))
         return end_list
 
-    @staticmethod
-    def __create_folder(name, directory=os.getcwd()):
+    def __create_folder(self, name):
         try:
-            os.mkdir(directory + name)
+            os.mkdir(self.path + name)
         except FileExistsError:
             print("Директория уже создана")
 
@@ -44,9 +45,7 @@ class Download:
 
     def delete_directory(self, folder):
         if folder == 'all':
-
             try:
-
                 """Возможная функция возвращающая глобальные темы статей"""
 
                 links = self.__get_links()
@@ -59,7 +58,6 @@ class Download:
                     shutil.rmtree(folder)
             except FileNotFoundError:
                 return print('Такой папки не существует в данной директории')
-
         else:
             try:
                 shutil.rmtree(folder)
