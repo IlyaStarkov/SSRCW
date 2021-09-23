@@ -1,6 +1,7 @@
 import requests
-from bs4 import BeautifulSoup
 import os
+from bs4 import BeautifulSoup
+import shutil
 
 
 class Download:
@@ -40,3 +41,27 @@ class Download:
                 self.__create_folder("/" + label + "/" + link[1])
             else:
                 self.__create_folder("/" + label + "/" + link[1])
+
+    def delete_directory(self, folder):
+        if folder == 'all':
+
+            try:
+
+                """Возможная функция возвращающая глобальные темы статей"""
+
+                links = self.__get_links()
+                name_of_folders = []
+                for link in links:
+                    name_of_folders.append(link[0])
+                """______________________________________"""
+
+                for folder in set(name_of_folders):
+                    shutil.rmtree(folder)
+            except FileNotFoundError:
+                return print('Такой папки не существует в данной директории')
+
+        else:
+            try:
+                shutil.rmtree(folder)
+            except FileNotFoundError:
+                return print('Такой папки не существует в данной директории')
