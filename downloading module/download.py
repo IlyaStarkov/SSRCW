@@ -1,6 +1,7 @@
 import requests
 import os
 import shutil
+import pandas as pd
 from bs4 import BeautifulSoup
 
 
@@ -17,14 +18,16 @@ class Download:
     def __get_links(self):
         soup = BeautifulSoup(self.r.text.replace('\t', '').encode('utf-8'), 'lxml')
         links = soup.find_all("li")
-        end_list, label = [], ''
+        main_theme, theme, link = [], [], []
+        label = ''
         for item in links:
             if item.attrs.get('class') is not None:
                 label = item.string
             elif item.string != u"\xa0":
-                end_list.append((label, item.string.replace('\xa0', ' '),
-                                 self.url + item.find('a').get('href')))
-        return end_list
+                main_theme.append(label)
+                theme.append(item.string.replace('\xa0', ' '))
+                link.append(self.url + item.find('a').get('href'))
+        return pd.DataFrame({'main_theme': main_theme, 'theme': theme, 'link': link})
 
     def __create_folder(self, name):
         try:
@@ -35,7 +38,7 @@ class Download:
     def create_directory(self):
         links = self.__get_links()
         label = ''
-        for link in links:
+        for link in links.iloc:
             if label != link[0]:
                 label = link[0]
                 self.__create_folder("/" + label)
@@ -50,7 +53,7 @@ class Download:
 
                 links = self.__get_links()
                 name_of_folders = []
-                for link in links:
+                for link in links.iloc:
                     name_of_folders.append(link[0])
                 """______________________________________"""
 
