@@ -66,3 +66,10 @@ class Download:
                 shutil.rmtree(folder)
             except FileNotFoundError:
                 return print('Такой папки не существует в данной директории')
+
+    def create_csv(self, name):
+        if name == 'head':
+            self.__get_links().to_csv(path_or_buf=os.getcwd()+'\\'+name+'.csv',
+                                      encoding="utf-8", sep=";", index=False)
+        else:
+            pass
