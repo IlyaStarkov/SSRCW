@@ -73,3 +73,13 @@ class Download:
                                       encoding="utf-8", sep=";", index=False)
         else:
             pass
+
+    def parse(self, title):
+        root_folder = os.getcwd()  # Запоминаем корневую папку, чтобы потом в нее вернутся
+        themes = self.__get_links()
+        slc = themes[themes.theme == title]
+        if slc.shape[0]:
+            path = root_folder + "\\" + slc.main_theme.values[0] + "\\" + slc.theme.values[0]
+            os.chdir(path)
+        else:
+            print("Статьи с такой темой не найдены")
