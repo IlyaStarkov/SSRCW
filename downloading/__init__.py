@@ -1,1 +1,1 @@
-from .download import Download
+from .struct import DirectoryStructure

@@ -5,7 +5,7 @@ import pandas as pd
 from bs4 import BeautifulSoup
 
 
-class Download:
+class DirectoryStructure:
     def __init__(self, url, path=os.getcwd()):
         if url[-1] == '/':
             print("Удалите последнюю косую черту из адресса")
@@ -27,7 +27,12 @@ class Download:
                 main_theme.append(label)
                 theme.append(item.string.replace('\xa0', ' '))
                 link.append(self.url + item.find('a').get('href'))
-        return pd.DataFrame({'main_theme': main_theme, 'theme': theme, 'link': link})
+
+        return pd.DataFrame({
+                             'main_theme': main_theme,
+                             'theme': theme,
+                             'link': link
+        })
 
     def __create_folder(self, name):
         try:
@@ -67,19 +72,7 @@ class Download:
             except FileNotFoundError:
                 return print('Такой папки не существует в данной директории')
 
-    def create_csv(self, name):
-        if name == 'head':
-            self.__get_links().to_csv(path_or_buf=os.getcwd()+'\\'+name+'.csv',
-                                      encoding="utf-8", sep=";", index=False)
-        else:
-            pass
-
-    def parse(self, title):
-        root_folder = os.getcwd()  # Запоминаем корневую папку, чтобы потом в нее вернутся
-        themes = self.__get_links()
-        slc = themes[themes.theme == title]
-        if slc.shape[0]:
-            path = root_folder + "\\" + slc.main_theme.values[0] + "\\" + slc.theme.values[0]
-            os.chdir(path)
-        else:
-            print("Статьи с такой темой не найдены")
+    def create_csv(self):
+        name = 'head'
+        self.__get_links().to_csv(path_or_buf=os.getcwd()+'\\'+name+'.csv',
+                                  encoding="utf-8", sep=";", index=False)
