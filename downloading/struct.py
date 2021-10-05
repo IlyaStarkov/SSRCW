@@ -75,4 +75,4 @@ class DirectoryStructure:
     def create_csv(self):
         name = 'head'
         self.__get_links().to_csv(path_or_buf=os.getcwd()+'\\'+name+'.csv',
-                                  encoding="utf-8", sep=";", index=False)
+                                  encoding="1251", sep=";", index=False)
