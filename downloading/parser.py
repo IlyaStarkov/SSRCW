@@ -1,5 +1,6 @@
 import requests
 import pandas as pd
+import os
 from bs4 import BeautifulSoup
 
 
@@ -8,11 +9,12 @@ class Parser:
         self.url = url
         self.head_csv = pd.read_csv(head_csv, encoding="1251", sep=';')
 
-    def parse(self, theme):
+    def parse(self, theme, save_csv=False):
+        df = self.head_csv
+        thems_df = None
         if theme == 'all':
             pass
-        else:
-            df = self.head_csv
+        elif df[df.theme == theme].main_theme.shape[0]:
             url = df[df['theme'] == theme].link.values[0]
             r = requests.get(url)
             soup = BeautifulSoup(r.text.replace('\t', '').encode('utf-8'), 'lxml')
@@ -41,13 +43,28 @@ class Parser:
                 else:
                     rsci.append(0)
 
-            return pd.DataFrame({
-                'title': title,
-                'year': year,
-                'authors': authors,
-                'link': link,
-                'ВАК': vak,
-                'Scopus': scopus,
-                'ECSI': esci,
-                'RSCI': rsci
-            })
+                thems_df = pd.DataFrame({
+                    'title': title,
+                    'year': year,
+                    'authors': authors,
+                    'link': link,
+                    'ВАК': vak,
+                    'Scopus': scopus,
+                    'ECSI': esci,
+                    'RSCI': rsci
+                })
+
+            if save_csv:
+                path = os.getcwd() + '\\' + df[df.theme == theme] \
+                    .main_theme.values[0] + '\\' + theme
+
+                thems_df.to_csv(path_or_buf=path + '\\' + theme + '.csv',
+                                encoding="1251", sep=";", index=False)
+
+            else:
+
+                return thems_df
+
+        else:
+
+            return print('Такая тема не найдена')
