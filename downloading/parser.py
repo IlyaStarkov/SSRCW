@@ -4,6 +4,9 @@ import os
 from bs4 import BeautifulSoup
 from tqdm import tqdm
 
+USER_AGENT = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) " \
+             "AppleWebKit/537.36 (KHTML, like Gecko) Chrome/94.0.4606.71 Safari/537.36"
+
 
 class Parser:
     def __init__(self, url, head_csv):
@@ -57,7 +60,7 @@ class Parser:
             start_soup = BeautifulSoup(r.text.replace('\t', '').encode('utf-8'), 'lxml')
 
             for page in tqdm(range(self.__get_pages_counts(start_soup))):
-                r = requests.get(url, params={'page': page})
+                r = requests.get(url, headers={USER_AGENT}, params={'page': page})
                 soup = BeautifulSoup(r.text.replace('\t', '').encode('utf-8'), 'lxml')
                 content = self.__get_content(soup)
                 title += content[0]
