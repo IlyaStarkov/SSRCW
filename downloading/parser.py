@@ -5,8 +5,8 @@ import os
 from bs4 import BeautifulSoup
 from tqdm import tqdm
 
-USER_AGENT = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 ' \
-             '(KHTML, like Gecko) Chrome/94.0.4606.81 Safari/537.36'
+HEADERS = {'user_agent': "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko)"
+                         " Chrome/94.0.4606.81 Safari/537.36"}
 
 
 class Parser:
@@ -63,43 +63,48 @@ class Parser:
 
         if df[df.theme == theme].main_theme.shape[0]:
             title, year, authors, link, vak, scopus, esci, rsci = [], [], [], [], [], [], [], []
-            url = df[df['theme'] == theme].link.values[0]
-            r = requests.get(url)
-            start_soup = BeautifulSoup(r.text.replace('\t', '').encode('utf-8'), 'lxml')
+            try:
+                url = df[df['theme'] == theme].link.values[0]
+                r = requests.get(url)
+                start_soup = BeautifulSoup(r.text.replace('\t', '').encode('utf-8'), 'lxml')
 
-            for page in tqdm(self.__number_limit(self.__get_pages_counts(start_soup), sample_size)):
-                r = requests.get(url, headers={USER_AGENT}, params={'page': page})
-                soup = BeautifulSoup(r.text.replace('\t', '').encode('utf-8'), 'lxml')
-                content = self.__get_content(soup)
-                title += content[0]
-                year += content[1]
-                authors += content[2]
-                link += content[3]
-                vak += content[4]
-                scopus += content[5]
-                esci += content[6]
-                rsci += content[7]
+                for page in tqdm(self.__number_limit(self.__get_pages_counts(start_soup), sample_size)):
+                    r = requests.get(url, headers=HEADERS, params={'page': page})
+                    soup = BeautifulSoup(r.text.replace('\t', '').encode('utf-8'), 'lxml')
+                    content = self.__get_content(soup)
+                    title += content[0]
+                    year += content[1]
+                    authors += content[2]
+                    link += content[3]
+                    vak += content[4]
+                    scopus += content[5]
+                    esci += content[6]
+                    rsci += content[7]
 
-            thems_df = pd.DataFrame({
-                'title': title,
-                'year': year,
-                'authors': authors,
-                'link': link,
-                'ВАК': vak,
-                'Scopus': scopus,
-                'ECSI': esci,
-                'RSCI': rsci
-            })
+                thems_df = pd.DataFrame({
+                    'title': title,
+                    'year': year,
+                    'authors': authors,
+                    'link': link,
+                    'ВАК': vak,
+                    'Scopus': scopus,
+                    'ECSI': esci,
+                    'RSCI': rsci
+                })
 
-            if save_csv:
-                path = os.getcwd() + '\\' + df[df.theme == theme] \
-                    .main_theme.values[0] + '\\' + theme
-                thems_df.to_csv(path_or_buf=path + '\\' + theme + '.csv',
-                                encoding='utf-8', sep=";", index=False)
+                if save_csv:
+                    path = os.getcwd() + '\\' + df[df.theme == theme] \
+                        .main_theme.values[0] + '\\' + theme
+                    thems_df.to_csv(path_or_buf=path + '\\' + theme + '.csv',
+                                    encoding='utf-8', sep=";", index=False)
 
-            else:
+                else:
 
-                return thems_df
+                    return thems_df
+
+            except:
+                print('Что-то пошло не так, данные были сохранены')
+                return title, year, authors, link, vak, scopus, esci, rsci
 
         else:
 
