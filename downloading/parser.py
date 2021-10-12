@@ -2,6 +2,7 @@ import requests
 import random
 import pandas as pd
 import os
+import time
 from bs4 import BeautifulSoup
 from tqdm import tqdm
 
@@ -57,7 +58,7 @@ class Parser:
             result.append(random.randint(1, pages_counts))
         return result
 
-    def parse(self, theme, sample_size, save_csv=False):
+    def parse(self, theme, sample_size, sleep, save_csv=False):
         df = self.head_csv
         thems_df = None
 
@@ -80,6 +81,7 @@ class Parser:
                     scopus += content[5]
                     esci += content[6]
                     rsci += content[7]
+                    time.sleep(sleep)
 
                 thems_df = pd.DataFrame({
                     'title': title,
