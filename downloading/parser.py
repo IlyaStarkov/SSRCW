@@ -53,14 +53,12 @@ class Parser:
 
     @staticmethod
     def __number_limit(pages_counts, desired_quantity):
-        result = []
-        for i in range(desired_quantity):
-            result.append(random.randint(1, pages_counts))
-        return result
+        return random.sample([x for x in range(1, pages_counts)],
+                             desired_quantity)
 
-    def parse(self, theme, sample_size, sleep, save_csv=False):
+    def parse(self, theme, sample_size, delay, save_csv=False):
         df = self.head_csv
-        thems_df = None
+        thems_df = pd.core.frame.DataFrame
 
         if df[df.theme == theme].main_theme.shape[0]:
             title, year, authors, link, vak, scopus, esci, rsci = [], [], [], [], [], [], [], []
@@ -81,7 +79,7 @@ class Parser:
                     scopus += content[5]
                     esci += content[6]
                     rsci += content[7]
-                    time.sleep(sleep)
+                    time.sleep(delay)
 
                 thems_df = pd.DataFrame({
                     'title': title,
