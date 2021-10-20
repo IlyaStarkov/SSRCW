@@ -9,5 +9,9 @@ parser = Parser(URL, 'head.csv')
 struct.create_directory()
 struct.create_csv()
 df = parser.head_csv
-for theme in df.theme:
-    parser.parse(theme, 250, 15, True)
+save_list = []
+
+for theme in df.theme:     # Цикл будет работать около 38 часов.
+
+    save = parser.parse(theme, 250, 15, True)   # В случае ошибки, сохраняем успешно загруженные данные
+    save_list.append(save)
