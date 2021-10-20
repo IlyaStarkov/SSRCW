@@ -10,4 +10,4 @@ struct.create_directory()
 struct.create_csv()
 df = parser.head_csv
 for theme in df.theme:
-    parser.parse(theme, True)
+    parser.parse(theme, 250, 15, True)
