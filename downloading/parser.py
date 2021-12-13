@@ -109,3 +109,12 @@ class Parser:
         else:
 
             return print('Такая тема не найдена')
+
+    def contact_themes(self):
+        list_of_df = []
+        for obj in self.head_csv.iloc:
+            path = os.getcwd()+'\\'+obj.main_theme+'\\'+obj.theme+'\\'+obj.theme+'.csv'
+            list_of_df.append(pd.read_csv(path, encoding='utf-8', sep=';'))
+        names = tuple(list_of_df)
+        df = pd.concat(names, axis=0, ignore_index=True)
+        df.to_csv('full_themes.csv', encoding='utf-8', sep=";", index=False)
