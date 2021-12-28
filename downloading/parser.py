@@ -56,7 +56,7 @@ class Parser:
         return random.sample([x for x in range(1, pages_counts)],
                              desired_quantity)
 
-    def parse(self, theme, sample_size, delay, save_csv=False):
+    def parse(self, theme, sample_size, delay, save_csv=False, proxies=None):
         df = self.head_csv
         thems_df = pd.core.frame.DataFrame
 
@@ -64,11 +64,16 @@ class Parser:
             title, year, authors, link, vak, scopus, esci, rsci = [], [], [], [], [], [], [], []
             try:
                 url = df[df['theme'] == theme].link.values[0]
-                r = requests.get(url)
+                r = requests.get(url,
+                                 headers=HEADERS,
+                                 proxies=proxies)
                 start_soup = BeautifulSoup(r.text.replace('\t', '').encode('utf-8'), 'lxml')
 
                 for page in tqdm(self.__number_limit(self.__get_pages_counts(start_soup), sample_size)):
-                    r = requests.get(url, headers=HEADERS, params={'page': page})
+                    r = requests.get(url,
+                                     headers=HEADERS,
+                                     params={'page': page},
+                                     proxies=proxies)
                     soup = BeautifulSoup(r.text.replace('\t', '').encode('utf-8'), 'lxml')
                     content = self.__get_content(soup)
                     title += content[0]
@@ -113,8 +118,18 @@ class Parser:
     def contact_themes(self):
         list_of_df = []
         for obj in self.head_csv.iloc:
-            path = os.getcwd()+'\\'+obj.main_theme+'\\'+obj.theme+'\\'+obj.theme+'.csv'
+            path = os.getcwd() + '\\' + obj.main_theme + '\\' + obj.theme + '\\' + obj.theme + '.csv'
             list_of_df.append(pd.read_csv(path, encoding='utf-8', sep=';'))
         names = tuple(list_of_df)
         df = pd.concat(names, axis=0, ignore_index=True)
-        df.to_csv('full_themes.csv', encoding='utf-8', sep=";", index=False)
+        df.to_csv('articles.csv', encoding='utf-8', sep=";", index=False)
+
+    def append_target(self):
+        for obj in self.head_csv.iloc:
+            path = os.getcwd() + '\\' + obj.main_theme + '\\' + obj.theme + '\\' + obj.theme + '.csv'
+            articles = pd.read_csv(path, sep=';', encoding='utf-8')
+            target = []
+            for i in range(articles.shape[0]):
+                target.append(obj.theme)
+            articles['theme'] = target
+            articles.to_csv(path, encoding='utf-8', sep=";", index=False)
