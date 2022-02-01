@@ -133,3 +133,32 @@ class Parser:
                 target.append(obj.theme)
             articles['theme'] = target
             articles.to_csv(path, encoding='utf-8', sep=";", index=False)
+
+
+def get_text(article):
+    url = article.link
+    r = requests.get(url)
+    soup = BeautifulSoup(r.text.replace('\t', '').encode('utf-8'), 'lxml')
+    items = soup.find(class_='ocr')
+    return items.get_text()
+
+
+def download(articles, index):
+    articles = articles.iloc[index:]
+    for number, article in enumerate(tqdm(articles.iloc)):
+
+        root = os.getcwd()
+        main_theme = article.main_theme
+        theme = article.theme
+        link = article.link
+
+        path_to_folder = '\\'.join([root, main_theme, theme])
+
+        try:
+            title = link.split('/')[-1]
+            text_of_article = get_text(article)
+            file = open(path_to_folder + '\\' + title + '.txt', 'w', encoding='utf-8-sig')
+            file.write(text_of_article)
+            file.close()
+        except:
+            return number + index
